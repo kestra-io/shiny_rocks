@@ -5,9 +5,8 @@ import random
 
 fake = Faker()
 
+class ShinyRockProvier(BaseProvider):
 
-# create new provider class
-class Order(BaseProvider):
     def order(self, order_date) -> str:
         return {
             "user_id": uuid.uuid4().hex,
@@ -16,7 +15,6 @@ class Order(BaseProvider):
             "product_id": int(select_string({"3": 0.64, "5": 0.36}))
         }
 
-class Payment(BaseProvider):
     def payment(self, order_id, product_id):
         return {
             "payment_id": uuid.uuid4().hex,
@@ -25,9 +23,7 @@ class Payment(BaseProvider):
             "amount": product_id * 99
         }
 
-class Service(BaseProvider):
-
-    def run(self, user_id, product_id, date):
+    def service(self, user_id, product_id, date):
         return {
             "service_id": select_string({"MAPS": 0.3, "MUSIC": 0.4, "PHONE": 0.1, "MESSAGE": 0.2}),
             "user_id": user_id,
@@ -54,9 +50,8 @@ def select_string(probabilities):
     # If no string is found (e.g., due to rounding errors), return None
     return None
 
-fake.add_provider(Order)
-fake.add_provider(Payment)
-fake.add_provider(Service)
+fake.add_provider(ShinyRockProvier)
+
 orders = []
 order_date = "2023-07-01"
 for i in range(0, get_random_number()):
@@ -76,7 +71,7 @@ print(payments)
 services = []
 for order in orders:
     for i in range(0, get_random_number(0, 10)):
-        service_run = fake.run(order.get("user_id"), order.get("product_id"), order_date)
+        service_run = fake.service(order.get("user_id"), order.get("product_id"), order_date)
         services.append(service_run)
 
 print(services)
