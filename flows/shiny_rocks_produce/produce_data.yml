@@ -1,0 +1,24 @@
+id: produce_data
+namespace: shiny_rocks_produce
+
+tasks:
+  - id: working_dir
+    type: io.kestra.core.tasks.flows.WorkingDirectory
+    tasks:
+
+      - id: clone
+        type: io.kestra.plugin.git.Clone
+        url: https://github.com/Ben8t/shiny_rocks
+
+      - id: python
+        type: io.kestra.plugin.scripts.python.Commands
+        warningOnStdErr: false
+        beforeCommands:
+          - pip install -r dataset/produce/requirements.txt
+        commands:
+          - python dataset/produce/main.py --date {{ schedule.date ?? now() | date("yyyy-MM-dd")}}
+
+      - id: file_outputs
+        type: io.kestra.core.tasks.storages.LocalFiles
+        outputs:
+          - '*.csv'
