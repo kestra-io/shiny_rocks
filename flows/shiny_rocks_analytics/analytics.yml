@@ -15,8 +15,18 @@ tasks:
     fetch: true
     inputFiles:
       orders.csv: "{{ json(inputs.data_files).uris['orders.csv'] }}"
+      payments.csv: "{{ json(inputs.data_files).uris['payments.csv'] }}"
     sql: |
-      SELECT * FROM read_csv_auto("{{workingDir}}/orders.csv")
+      SELECT
+        product_id,
+        payment_method,
+        SUM(amount) AS sum_amount
+      FROM read_csv_auto("{{workingDir}}/payments.csv") AS payments
+      INNER JOIN(
+        SELECT order_id, product_id FROM read_csv_auto("{{workingDir}}/orders.csv")
+      ) AS orders
+      ON payments.order_id = orders.order_id
+      GROUP BY product_id, payment_method
 
 triggers:
 
