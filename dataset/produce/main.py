@@ -75,35 +75,36 @@ def write_list_of_dicts_to_csv(list_of_dicts, filename):
         row.append(str(value))
       writer.writerow(row)
 
-fake.add_provider(ShinyRockProvier)
 
-orders = []
-order_date = "2023-07-01"
-int_day = date_to_int(order_date)
-nb_order = pattern_function(int_day, 800)
-print(order_date, int_day, nb_order)
-for i in range(0, nb_order):
-    order = fake.order(order_date=order_date)
-    orders.append(order)
-
-write_list_of_dicts_to_csv(orders, f"orders_{order_date.replace('-','')}.csv")
-
-payments = []
-for order in orders:
-    payment = fake.payment(order.get("order_id"), order.get("product_id"))
-    payments.append(payment)
-
-write_list_of_dicts_to_csv(payments, f"payments_{order_date.replace('-','')}.csv")
-
-services = []
-for order in orders:
-    for i in range(0, get_random_number(0, 10)):
-        service_run = fake.service(order.get("user_id"), order.get("product_id"), order_date)
-        services.append(service_run)
-
-write_list_of_dicts_to_csv(services, f"services_{order_date.replace('-','')}.csv")
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Produce data for the Shiny Rock fictional company")
     parser.add_argument("--date", help="The production date")
     args = parser.parse_args()
 
+    fake.add_provider(ShinyRockProvier)
+
+    orders = []
+    order_date = args.date
+    int_day = date_to_int(order_date)
+    nb_order = pattern_function(int_day, 800)
+    print(order_date, int_day, nb_order)
+    for i in range(0, nb_order):
+        order = fake.order(order_date=order_date)
+        orders.append(order)
+
+    write_list_of_dicts_to_csv(orders, f"orders_{order_date.replace('-','')}.csv")
+
+    payments = []
+    for order in orders:
+        payment = fake.payment(order.get("order_id"), order.get("product_id"))
+        payments.append(payment)
+
+    write_list_of_dicts_to_csv(payments, f"payments_{order_date.replace('-','')}.csv")
+
+    services = []
+    for order in orders:
+        for i in range(0, get_random_number(0, 10)):
+            service_run = fake.service(order.get("user_id"), order.get("product_id"), order_date)
+            services.append(service_run)
+    
+    write_list_of_dicts_to_csv(services, f"services_{order_date.replace('-','')}.csv")
