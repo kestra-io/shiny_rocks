@@ -86,14 +86,14 @@ for i in range(0, nb_order):
     order = fake.order(order_date=order_date)
     orders.append(order)
 
-write_list_of_dicts_to_csv(orders, "orders.csv")
+write_list_of_dicts_to_csv(orders, f"orders_{order_date.replace('-','')}.csv")
 
 payments = []
 for order in orders:
     payment = fake.payment(order.get("order_id"), order.get("product_id"))
     payments.append(payment)
 
-write_list_of_dicts_to_csv(payments, "payments.csv")
+write_list_of_dicts_to_csv(payments, f"payments_{order_date.replace('-','')}.csv")
 
 services = []
 for order in orders:
@@ -101,8 +101,7 @@ for order in orders:
         service_run = fake.service(order.get("user_id"), order.get("product_id"), order_date)
         services.append(service_run)
 
-write_list_of_dicts_to_csv(services, "services.csv")
-
+write_list_of_dicts_to_csv(services, f"services_{order_date.replace('-','')}.csv")
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Produce data for the Shiny Rock fictional company")
     parser.add_argument("--date", help="The production date")
