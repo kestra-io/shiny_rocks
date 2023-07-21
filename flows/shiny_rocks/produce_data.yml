@@ -1,5 +1,8 @@
 id: produce_data
-namespace: shiny_rocks_produce
+namespace: shiny_rocks
+
+labels:
+  tag: producer
 
 tasks:
   - id: working_dir
@@ -23,20 +26,13 @@ tasks:
         outputs:
           - '*.csv'
 
-  - id: parallel
-    type: io.kestra.core.tasks.flows.EachParallel
-    value: "{{ outputs.file_outputs.uris | jq('.[]') }}"
-    tasks:
-
-      - id: gcs_upload
-        type: io.kestra.plugin.gcp.gcs.Upload
-        serviceAccount: "{{ secret('gcp_creds')}}"
-        from: '{{ taskrun.value }}'
-        to: "gs://shiny_rocks/app_log/{{ schedule.date ?? now() | date('yyyy-MM-dd')}}/{{taskrun.value | substringAfterLast('/')}}"
+      - id: run_date
+        type: io.kestra.core.tasks.debugs.Return
+        format: '{{ schedule.date ?? now() | date("yyyy-MM-dd")}}'
 
 
 triggers:
-  - id: schedule2
+  - id: schedule4
     type: io.kestra.core.models.triggers.types.Schedule
     cron: "0 10 * * *"
     backfill:

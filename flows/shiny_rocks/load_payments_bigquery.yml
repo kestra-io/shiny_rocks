@@ -1,0 +1,48 @@
+id: load_payments_bigquery
+namespace: shiny_rocks
+
+labels:
+  tag: load
+
+inputs:
+  - name: payments_data
+    type: URI
+
+  - name: payment_date
+    type: DATE
+
+tasks:
+
+  - id: extract
+    type: io.kestra.plugin.gcp.gcs.Upload
+    serviceAccount: '{{ secret("gcp_creds") }}'
+    from: "{{ inputs.payments_data }}"
+    to: gs://shiny_rocks/app_log/payments/{{ inputs.payment_date }}/payments.csv
+
+  - id: load
+    type: io.kestra.plugin.gcp.bigquery.LoadFromGcs
+    from: 
+      - "{{ outputs.extract.uri }}"
+    projectId: "kestra-dev"
+    destinationTable: "shiny_rocks.payments"
+    serviceAccount: '{{ secret("gcp_creds") }}'
+    format: CSV
+    autodetect: true
+    csvOptions:
+      fieldDelimiter: ","
+    timePartitioningField: "order_date"
+
+triggers:
+
+  - id: get_data
+    type: io.kestra.core.models.triggers.types.Flow
+    inputs:
+      payments_data: "{{ outputs.file_outputs.uris['payments.csv'] }}"
+      payment_date: "{{ outputs.run_date.value }}"
+    conditions:
+      - type: io.kestra.core.models.conditions.types.ExecutionFlowCondition
+        namespace: shiny_rocks
+        flowId: produce_data
+      - type: io.kestra.core.models.conditions.types.ExecutionStatusCondition
+        in:
+          - SUCCESS

@@ -1,9 +1,12 @@
 id: analytics
-namespace: shiny_rocks_analytics
+namespace: shiny_rocks
 
 inputs:
   - name: data_files
     type: JSON
+
+labels:
+  tag: analytics
 
 tasks:
   - id: debug
