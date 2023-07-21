@@ -1,6 +1,6 @@
-# Shiny Rocks
+# ✨ Shiny Rocks
 
-_Shiny Rocks_ is fictional company creating smartphones (those shiny rocks). This project aims to provide a full working example of Kestra.
+**_✨ Shiny Rocks_** is fictional company creating smartphones (_"those shiny rocks in our pockets"_). This project aims to provide a full working example of Kestra as you could have in a company.
 
 **What is this repo?**
 
