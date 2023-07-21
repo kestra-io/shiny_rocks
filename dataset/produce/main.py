@@ -20,21 +20,22 @@ class ShinyRockProvier(BaseProvider):
             "utm_source": select_string({"_instagram": 0.2, "_amazon": 0.6, "_facebook": 0.1, "_youtube": 0.1})
         }
 
-    def payment(self, order_id, product_id):
+    def payment(self, order_id, product_id, order_date):
         return {
             "payment_id": uuid.uuid4().hex,
             "order_id": order_id,
+            "order_date": order_date,
             "payment_method": select_string({"PAYPAL": 0.17, "CARD": 0.80, "APPLE_PAY": 0.03}),
             "amount": product_id * 99
         }
 
-    def service(self, user_id, product_id, date):
+    def service(self, user_id, product_id, run_date):
         return {
             "service_id": select_string({"MAPS": 0.3, "MUSIC": 0.4, "PHONE": 0.1, "MESSAGE": 0.2}),
             "user_id": user_id,
             "product_id": product_id,
             "duration": get_random_number(range_a=5, range_b=3600),
-            "date": date   
+            "run_date": run_date
         }
 
 
@@ -83,23 +84,24 @@ if __name__ == "__main__":
 
     fake.add_provider(ShinyRockProvier)
 
-    orders = []
     order_date = args.date
     int_day = date_to_int(order_date)
     nb_order = pattern_function(int_day, 800)
     print(order_date, int_day, nb_order)
+
+    orders = []    
     for i in range(0, nb_order):
         order = fake.order(order_date=order_date)
         orders.append(order)
 
-    write_list_of_dicts_to_csv(orders, f"orders_{order_date.replace('-','')}.csv")
+    write_list_of_dicts_to_csv(orders, f"orders.csv")
 
     payments = []
     for order in orders:
-        payment = fake.payment(order.get("order_id"), order.get("product_id"))
+        payment = fake.payment(order.get("order_id"), order.get("product_id"), order.get("order_date"))
         payments.append(payment)
 
-    write_list_of_dicts_to_csv(payments, f"payments_{order_date.replace('-','')}.csv")
+    write_list_of_dicts_to_csv(payments, f"payments.csv")
 
     services = []
     for order in orders:
@@ -107,4 +109,4 @@ if __name__ == "__main__":
             service_run = fake.service(order.get("user_id"), order.get("product_id"), order_date)
             services.append(service_run)
     
-    write_list_of_dicts_to_csv(services, f"services_{order_date.replace('-','')}.csv")
+    write_list_of_dicts_to_csv(services, f"services.csv")
