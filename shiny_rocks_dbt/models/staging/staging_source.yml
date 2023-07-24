@@ -2,9 +2,17 @@ version: 2
 
 sources:
 
-  - name: shiny_rocks
+  - name: app_log
     database: kestra-dev
+    schema: shiny_rocks
     tables:
       - name: orders
       - name: payments
       - name: services
+
+  - name: marketing
+    database: kestra-dev
+    schema: shiny_rocks
+    tables:
+      - name: marketing_investments
+

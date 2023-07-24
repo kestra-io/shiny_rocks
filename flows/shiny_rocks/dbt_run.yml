@@ -1,0 +1,42 @@
+id: dbt_run
+namespace: shiny_rocks
+
+labels:
+  tag: analytics
+
+tasks:
+  - id: workingdir
+    type: io.kestra.core.tasks.flows.WorkingDirectory
+    tasks:
+      - id: cloneRepository
+        type: io.kestra.plugin.git.Clone
+        url: https://github.com/Ben8t/shiny_rocks
+        branch: main
+
+      - id: profile
+        type: io.kestra.core.tasks.storages.LocalFiles
+        inputs:          
+          profiles.yml: |
+            shiny_rocks_dbt:
+              outputs:
+                dev:
+                  type: bigquery
+                  dataset: shiny_rocks
+                  fixed_retries: 1
+                  keyfile: service_account.json
+                  location: EU
+                  method: service-account
+                  priority: interactive
+                  project: kestra-dev
+                  threads: 8
+                  timeout_seconds: 300
+              target: dev
+          service_account.json: "{{ secret('gcp_creds') }}"
+
+
+      - id: dbt
+        type: io.kestra.plugin.scripts.shell.Commands
+        docker:
+          image: ghcr.io/kestra-io/dbt-bigquery:latest
+        commands:
+          - dbt run --profiles-dir=. --project-dir=shiny_rocks_dbt

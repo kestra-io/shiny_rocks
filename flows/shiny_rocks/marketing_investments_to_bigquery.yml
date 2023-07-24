@@ -1,0 +1,36 @@
+id: marketing_investments_to_bigquery
+namespace: shiny_rocks
+
+labels:
+  tag: marketing
+
+variables:
+  spreadsheet_id: 1C0UWuMuiEIxkOKzSQhbhFn6AILzmXX59NUbtI4s3wpU
+  dataset_table: shiny_rocks.marketing_investments
+
+tasks:
+  - id: read_gsheet
+    type: io.kestra.plugin.googleworkspace.sheets.Read
+    description: Read data from Google Spreadsheet
+    serviceAccount: "{{ secret('gcp_creds') }}"
+    spreadsheetId: "{{ vars.spreadsheet_id }}"
+    store: true
+    valueRender: FORMATTED_VALUE
+  
+  - id: write_csv
+    type: io.kestra.plugin.serdes.csv.CsvWriter
+    description: Write CSV into Kestra internal storage
+    from: "{{ outputs.read_gsheet.uris.marketing }}"
+  
+  - id: load_biqquery
+    type: io.kestra.plugin.gcp.bigquery.Load
+    description: Load data into BigQuery
+    serviceAccount: "{{ secret('gcp_creds') }}"
+    autodetect: true
+    writeDisposition: WRITE_TRUNCATE
+    csvOptions:
+      fieldDelimiter: ","
+    projectId: kestra-dev
+    destinationTable: '{{ vars.dataset_table }}'
+    format: CSV
+    from: "{{ outputs.write_csv.uri }}"
