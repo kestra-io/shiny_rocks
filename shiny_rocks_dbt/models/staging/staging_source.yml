@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+
+  - name: shiny_rocks
+    database: kestra-dev
+    tables:
+      - name: orders
+      - name: payments
+      - name: services
