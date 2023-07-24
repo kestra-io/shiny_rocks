@@ -40,3 +40,33 @@ tasks:
           image: ghcr.io/kestra-io/dbt-bigquery:latest
         commands:
           - dbt run --profiles-dir=. --project-dir=shiny_rocks_dbt
+
+triggers:
+  - id: multiple-listen-flow
+    type: io.kestra.core.models.triggers.types.Flow
+    conditions:
+      - type: io.kestra.core.models.conditions.types.ExecutionStatusCondition
+        in:
+          - SUCCESS
+      - id: multiple
+        type: io.kestra.core.models.conditions.types.MultipleCondition
+        window: P1D
+        windowAdvance: P0D
+        conditions:
+          orders:
+            type: io.kestra.core.models.conditions.types.ExecutionFlowCondition
+            namespace: shiny_rocks
+            flowId: load_orders_bigquery
+          payments:
+            type: io.kestra.core.models.conditions.types.ExecutionFlowCondition
+            namespace: shiny_rocks
+            flowId: load_payments_bigquery
+          services:
+            type: io.kestra.core.models.conditions.types.ExecutionFlowCondition
+            namespace: shiny_rocks
+            flowId: load_services_bigquery
+          marketing_investments:
+            type: io.kestra.core.models.conditions.types.ExecutionFlowCondition
+            namespace: shiny_rocks
+            flowId: marketing_investments_to_bigquery
+          
