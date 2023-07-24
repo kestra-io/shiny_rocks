@@ -1,6 +1,6 @@
 # ✨ Shiny Rocks
 
-**_✨ Shiny Rocks_** is fictional company creating smartphones (_"those shiny rocks in our pockets"_). This project aims to provide a full working example of Kestra as you could have in a company.
+**_✨ Shiny Rocks_** is a fictional company creating smartphones (_"those shiny rocks in our pockets"_). This project aims to provide a full working example of Kestra as you could have in a company.
 
 **What is this repo?**
 
@@ -17,7 +17,7 @@
 **What's in?"**
 
 - `flows` folder: where we store Kestra Flows.
-- Terraform files: to deploy and manage Kestra assets.
+- Terraform `main.tf` file: to deploy and manage Kestra assets.
 - `docker-compose.yml`: to install the whole project in a self-contained environment.
 - `dataset/`: script to generate data + historical data you could backfill in Kestra. As highlighted in introduction, it's all fake data.
 
