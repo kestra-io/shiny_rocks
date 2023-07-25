@@ -16,10 +16,11 @@
 
 **What's in?"**
 
-- `flows` folder: where we store Kestra Flows.
-- Terraform `main.tf` file: to deploy and manage Kestra assets.
 - `docker-compose.yml`: to install the whole project in a self-contained environment.
-- `dataset/`: script to generate data + historical data you could backfill in Kestra. As highlighted in introduction, it's all fake data.
+- Terraform `main.tf` file: to deploy and manage Kestra assets.
+- `./flows` folder: where we store Kestra Flows.
+- `./shiny_rocks_dbt`: dbt project for data transformation
+- `./dataset/produce`: script to generate data + historical data you could backfill in Kestra. As highlighted in introduction, it's all fake data.
 
 ## Setup
 
