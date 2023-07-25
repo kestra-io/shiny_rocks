@@ -67,3 +67,17 @@ tasks:
     to: "marketing@shinyrocks.com"
     htmlTextContent: |
       Here is the last marketing ROI data!
+
+
+triggers:
+
+  - id: get_data
+    type: io.kestra.core.models.triggers.types.Flow
+    conditions:
+      - type: io.kestra.core.models.conditions.types.ExecutionFlowCondition
+        namespace: shiny_rocks
+        flowId: dbt_run
+      - type: io.kestra.core.models.conditions.types.ExecutionStatusCondition
+        in:
+          - SUCCESS
+
