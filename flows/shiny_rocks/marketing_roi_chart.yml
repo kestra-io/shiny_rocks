@@ -1,6 +1,9 @@
 id: marketing_roi_chart
 namespace: shiny_rocks
 
+labels:
+  tag: marketing
+
 tasks:
   - id: get_data
     type: io.kestra.plugin.gcp.bigquery.Query
@@ -52,3 +55,14 @@ tasks:
         type: io.kestra.core.tasks.storages.LocalFiles
         outputs:
           - plot.png
+
+  - id: send_email
+    disabled: true
+    type: io.kestra.plugin.notifications.mail.MailSend
+    attachments:
+      - name: plot.png
+        uri: '{{ outputs.output["plot.png"] }}'
+    subject: "Daily marketing ROI"
+    to: "marketing@shinyrocks.com"
+    htmlTextContent: |
+      Here is the last marketing ROI data!
