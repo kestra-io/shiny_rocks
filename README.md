@@ -22,6 +22,11 @@
 - `./shiny_rocks_dbt`: dbt project for data transformation
 - `./dataset/produce`: script to generate data + historical data you could backfill in Kestra. As highlighted in introduction, it's all fake data.
 
+
+## Data Model
+
+![schema](misc/datastack_schema.png)
+
 ## Setup
 
 
