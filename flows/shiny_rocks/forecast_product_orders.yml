@@ -1,0 +1,104 @@
+id: forecast_product_orders
+namespace: shiny_rocks
+
+tasks:
+  
+  - id: query_data
+    type: io.kestra.plugin.gcp.bigquery.Query
+    serviceAccount: '{{ secret("gcp_creds") }}'
+    projectId: kestra-dev
+    sql: |
+      SELECT
+        orders.order_date,
+        product_id,
+        COUNT(orders.order_id) AS nb_order
+      FROM shiny_rocks.orders AS orders
+      LEFT JOIN shiny_rocks.payments AS payments
+      ON orders.order_id = payments.order_id
+      GROUP BY order_date, product_id
+    store: true 
+  
+  - id: write_csv
+    type: io.kestra.plugin.serdes.csv.CsvWriter
+    from: '{{ outputs.query_data.uri }}'
+
+  - id: working_dir_product_id
+    type: io.kestra.core.tasks.flows.WorkingDirectory
+    tasks:
+      
+      - id: files
+        type: io.kestra.core.tasks.storages.LocalFiles
+        inputs:
+          data.csv: '{{ outputs.write_csv.uri }}'
+
+      - id: get_product_id
+        type: io.kestra.plugin.scripts.python.Script
+        description: We use a python script to extract the distinct unique values of product_id.
+        warningOnStdErr: false
+        docker:
+            image: ghcr.io/kestra-io/pydata
+        script: |
+          import pandas as pd
+          from kestra import Kestra
+
+          data = pd.read_csv("data.csv")
+          product_id = [int(x) for x in list(data.product_id.unique())]
+          print(product_id)
+          Kestra.outputs({"product_id": product_id})
+
+
+  - id: parallel_forecast
+    type: io.kestra.core.tasks.flows.EachParallel
+    description: For each product_id value, we run a forecast to predict the number of orders for the next 5 days.
+    value: '{{ outputs.get_product_id.vars.product_id }}'
+    tasks:
+
+      - id: sequential
+        type: io.kestra.core.tasks.flows.Sequential
+        tasks:
+
+          - id: working_dir_forecast
+            type: io.kestra.core.tasks.flows.WorkingDirectory
+            tasks:
+              - id: get_data
+                type: io.kestra.core.tasks.storages.LocalFiles
+                inputs:
+                  data.csv: '{{ outputs.write_csv.uri }}'
+
+              
+              - id: forecast
+                type: io.kestra.plugin.scripts.python.Script
+                warningOnStdErr: false
+                docker:
+                    image: ghcr.io/kestra-io/pydata
+                beforeCommands: 
+                  - pip install prophet
+                script: |
+                  import pandas as pd
+                  from prophet import Prophet
+
+                  data = (
+                    pd.read_csv("data.csv")
+                    .query("product_id == {{ parents[0].taskrun.value }}")
+                    .rename(columns={"nb_order": "y", "order_date": "ds"})
+                    .sort_values(by="ds")
+                  )
+
+                  m = Prophet()
+                  m.fit(data)
+
+                  future = m.make_future_dataframe(periods=5)
+                  forecast = m.predict(future)
+                  print(data)
+                  print(forecast)
+                  
+
+
+
+
+
+
+            
+
+
+
