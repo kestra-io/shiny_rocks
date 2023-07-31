@@ -1,6 +1,9 @@
 id: forecast_product_orders
 namespace: shiny_rocks
 
+labels:
+  tag: product
+
 tasks:
   
   - id: query_data
@@ -89,16 +92,46 @@ tasks:
 
                   future = m.make_future_dataframe(periods=5)
                   forecast = m.predict(future)
+
+                  forecast.to_csv("forecast.csv", index=False)
+                  data.to_csv("historic.csv", index=False)
                   print(data)
                   print(forecast)
+                
+              - id: shell
+                type: io.kestra.plugin.scripts.shell.Commands
+                commands:
+                  - ls
+
+              - id: rscript
+                type: io.kestra.plugin.scripts.r.Script
+                warningOnStdErr: false
+                docker:
+                  image: ghcr.io/kestra-io/rdata
+                script: |
+                  library(ggplot2)
+                  library(readr)
+                  library(dplyr)
+
+                  historic = read_csv("historic.csv") %>% mutate(group="historic", yhat=y)
+                  forecast = read_csv("forecast.csv") %>% mutate(group="forecast")
+                  data = bind_rows(historic, forecast)
+
+                  plot = ggplot(data=data, aes(x=ds, y=yhat, color=group)) +
+                  geom_line() +
+                  geom_point()
                   
+                  ggsave("{{outputDir}}/plot.png")
+                  
+                  
+triggers:
 
-
-
-
-
-
-            
-
-
-
+  - id: deps_etl
+    type: io.kestra.core.models.triggers.types.Flow
+    conditions:
+      - type: io.kestra.core.models.conditions.types.ExecutionFlowCondition
+        namespace: shiny_rocks
+        flowId: dbt_run
+      - type: io.kestra.core.models.conditions.types.ExecutionStatusCondition
+        in:
+          - SUCCESS
