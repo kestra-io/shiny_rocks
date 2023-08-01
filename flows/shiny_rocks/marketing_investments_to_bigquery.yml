@@ -1,5 +1,7 @@
 id: marketing_investments_to_bigquery
 namespace: shiny_rocks
+description: |
+  The marketing teams manage their investments into a Google Spreadsheet, hence we load those data into BigQuery for further processing and join with other data.
 
 labels:
   tag: marketing
