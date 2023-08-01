@@ -1,5 +1,9 @@
 id: marketing_roi_chart
 namespace: shiny_rocks
+description: |
+  After dbt transformation, we use marketing data joined to orders to create a plot of marketing ROI.
+  The flow first query data from BigQuery and then run a Python script to read data and create a chart out of it.
+  Then it sends this chart by email to the marketing team.
 
 labels:
   tag: marketing
