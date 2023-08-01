@@ -1,5 +1,7 @@
 id: dbt_run
 namespace: shiny_rocks
+description: |
+  Whenever all data are loaded in BigQuery, this flow will run a dbt job to transform data.
 
 labels:
   tag: analytics
