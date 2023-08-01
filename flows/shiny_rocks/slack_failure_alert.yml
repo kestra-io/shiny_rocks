@@ -1,5 +1,10 @@
 id: slack_failure_alert
 namespace: shiny_rocks
+description: |
+  This flow send a Slack notificiation whenever a flow execution in the `shiny_rocks` namespace end up in FAILED or WARNING state.
+
+labels:
+  tag: alerting
 
 tasks:
   - id: send
