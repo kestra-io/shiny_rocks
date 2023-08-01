@@ -1,5 +1,7 @@
 id: load_orders_bigquery
 namespace: shiny_rocks
+description: |
+  When data are generated upstream, this flow ingest the `orders` data into Google Cloud Storage and BigQuery.
 
 labels:
   tag: load

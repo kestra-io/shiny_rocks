@@ -1,5 +1,7 @@
 id: load_payments_bigquery
 namespace: shiny_rocks
+description: |
+  When data are generated upstream, this flow ingest the `payments` data into Google Cloud Storage and BigQuery.
 
 labels:
   tag: load
