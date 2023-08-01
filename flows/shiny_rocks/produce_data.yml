@@ -1,5 +1,8 @@
 id: produce_data
 namespace: shiny_rocks
+description: |
+  This flow generate Shiny Rocks fictional data. Three datasets are created: `orders`, `payments` and `services`.
+  Like in reality, those data change everyday.
 
 labels:
   tag: producer
@@ -23,6 +26,7 @@ tasks:
 
       - id: file_outputs
         type: io.kestra.core.tasks.storages.LocalFiles
+        description: This task allows to expose all CSV files created by the Python script task above to downstream tasks and flows.
         outputs:
           - '*.csv'
 
