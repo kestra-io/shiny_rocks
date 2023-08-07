@@ -1,5 +1,9 @@
 id: forecast_product_orders
 namespace: shiny_rocks
+description: |
+  Shiny Rocks sells two main products. In this flow, we compute orders forecast in parallel for each of these two.
+  We first query data of historic orders, serving as the base reference for forecast.
+  Then for each product, we compute forecast in Python thanks to the [Prophet library](https://facebook.github.io/prophet) and we plot predictions with R and its famous ggplot library.
 
 labels:
   tag: product
