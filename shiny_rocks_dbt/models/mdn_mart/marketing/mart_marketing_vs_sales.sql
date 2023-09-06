@@ -17,7 +17,7 @@ WITH orders_utm_values AS (
         amount AS marketing_cost,
         sum_payments_amount AS sales_amount
     FROM {{ ref("staging_marketing_investments") }} AS marketing_month_agg
-    LEFT JOIN orders_utm_values
+    INNER JOIN orders_utm_values
     ON marketing_month_agg.date = orders_utm_values.order_date AND marketing_month_agg.platform = orders_utm_values.utm_source
 )
 
