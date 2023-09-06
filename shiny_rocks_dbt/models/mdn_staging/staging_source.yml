@@ -1,0 +1,18 @@
+version: 2
+
+sources:
+
+  - name: app_log
+    database: SHINY_ROCKS
+    schema: PUBLIC
+    tables:
+      - name: orders
+      - name: payments
+      - name: services
+
+  - name: marketing
+    database: SHINY_ROCKS
+    schema: PUBLIC
+    tables:
+      - name: marketing_investments
+
