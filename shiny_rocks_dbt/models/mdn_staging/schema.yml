@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: staging_oders
+  - name: staging_orders
 
   - name: staging_payments
 
