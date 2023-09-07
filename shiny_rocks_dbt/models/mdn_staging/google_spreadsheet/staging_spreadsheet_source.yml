@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+
+  - name: marketing
+    database: SHINY_ROCKS
+    schema: PUBLIC
+    tables:
+      - name: marketing_investments
+
