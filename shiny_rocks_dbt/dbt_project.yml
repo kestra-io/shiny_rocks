@@ -34,6 +34,10 @@ models:
   mdn_shiny_rocks_dbt:
     # Config indicated by + and applies to all files under models/example/
     mdn_staging:
-      +materialized: view
+      app:
+        +materialized: view
+      google_spreadhseet:
+        +materialized: view
     mdn_mart:
-      +materialized: table
+      marketing:
+        +materialized: table
