@@ -36,7 +36,7 @@ models:
     mdn_staging:
       app:
         +materialized: view
-      google_spreadhseet:
+      google_spreadsheet:
         +materialized: view
     mdn_mart:
       marketing:
