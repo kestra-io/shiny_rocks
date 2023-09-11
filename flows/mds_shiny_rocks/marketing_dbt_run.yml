@@ -1,0 +1,76 @@
+id: dbt_run
+namespace: mds_shiny_rocks.product
+description: |
+  Whenever all data are loaded in BigQuery, this flow will run a dbt job to transform data.
+
+labels:
+  tag: analytics
+
+tasks:
+  - id: workingdir
+    type: io.kestra.core.tasks.flows.WorkingDirectory
+    tasks:
+      - id: cloneRepository
+        type: io.kestra.plugin.git.Clone
+        url: https://github.com/Ben8t/shiny_rocks
+        branch: feature/snowflake
+
+
+      - id: dbt
+        type: io.kestra.plugin.dbt.cli.DbtCLI
+        docker:
+          image: ghcr.io/kestra-io/dbt-snowflake:latest
+        profiles: |
+          mds_shiny_rocks_dbt:
+              target: dev
+              outputs:
+                dev:
+                  type: snowflake
+                  account: hzbjgxb-sn54742
+
+                  # User/password auth
+                  user: demo
+                  password: MDS2023_password
+
+                  role: ACCOUNTADMIN
+                  database: SHINY_ROCKS
+                  warehouse: COMPUTE_WH
+                  schema: public
+                  threads: 4
+                  client_session_keep_alive: False
+                  query_tag: dbt
+
+                  # optional
+                  connect_retries: 0 # default 0
+                  connect_timeout: 10 # default: 10
+                  retry_on_database_errors: False # default: false
+                  retry_all: False  # default: false
+                  reuse_connections: False # default: false (available v1.4+)
+        commands:
+          - dbt run --profiles-dir=. --project-dir=shiny_rocks_dbt --select mds_staging.app
+
+triggers:
+  - id: multiple-listen-flow
+    type: io.kestra.core.models.triggers.types.Flow
+    conditions:
+      - type: io.kestra.core.models.conditions.types.ExecutionStatusCondition
+        in:
+          - SUCCESS
+      - id: multiple
+        type: io.kestra.core.models.conditions.types.MultipleCondition
+        window: P1D
+        windowAdvance: P0D
+        conditions:
+          orders:
+            type: io.kestra.core.models.conditions.types.ExecutionFlowCondition
+            namespace: mds_shiny_rocks.product
+            flowId: load_orders_snowflake
+          payments:
+            type: io.kestra.core.models.conditions.types.ExecutionFlowCondition
+            namespace: mds_shiny_rocks.product
+            flowId: load_payments_snowflake
+          services:
+            type: io.kestra.core.models.conditions.types.ExecutionFlowCondition
+            namespace: mds_shiny_rocks.product
+            flowId: load_services_snowflake
+          

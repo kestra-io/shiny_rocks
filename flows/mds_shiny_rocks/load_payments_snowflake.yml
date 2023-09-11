@@ -1,0 +1,72 @@
+id: load_payments_snowflake
+namespace: mds_shiny_rocks.product
+description: |
+  When data are generated upstream, this flow ingest the `orders` data into Google Cloud Storage and BigQuery.
+
+labels:
+  - key: tag
+    value: load
+
+inputs:
+  - name: payment_data
+    type: URI
+
+  - name: payment_date
+    type: DATE
+
+tasks:
+
+  - id: create_table
+    type: io.kestra.plugin.jdbc.snowflake.Query
+    sql: |
+      CREATE TABLE IF NOT EXISTS SHINY_ROCKS.PUBLIC.PAYMENTS (
+        payment_id STRING ,
+        order_id STRING ,
+        order_date STRING ,
+        payment_method STRING ,
+        amount INTEGER
+        );
+
+  - id: extract_internal_stage
+    type: io.kestra.plugin.jdbc.snowflake.Upload
+    from: "{{ inputs.payment_data }}"
+    fileName: payments.csv
+    prefix: "{{ inputs.payment_date }}"
+    stageName: "@shiny_rocks.public.%payments"
+    compress: true
+
+  - id: load_table
+    type: io.kestra.plugin.jdbc.snowflake.Query
+    sql: |
+      COPY INTO SHINY_ROCKS.PUBLIC.PAYMENTS
+      FROM @shiny_rocks.public.%payments
+      FILE_FORMAT = (type = csv field_optionally_enclosed_by='"' skip_header = 1)
+      PATTERN = '.*payments.csv.gz';
+
+triggers:
+
+  - id: get_data
+    type: io.kestra.core.models.triggers.types.Flow
+    inputs:
+      payment_data: "{{ outputs.file_outputs.uris['payments.csv'] }}"
+      payment_date: "{{ outputs.run_date.value }}"
+    conditions:
+      - type: io.kestra.core.models.conditions.types.ExecutionFlowCondition
+        namespace: mds_shiny_rocks.product
+        flowId: produce_data
+      - type: io.kestra.core.models.conditions.types.ExecutionStatusCondition
+        in:
+          - SUCCESS
+
+taskDefaults:
+  - type: io.kestra.plugin.jdbc.snowflake.Query
+    values:
+      url: jdbc:snowflake://hzbjgxb-sn54742.snowflakecomputing.com?warehouse=COMPUTE_WH
+      username: demo
+      password: MDS2023_password
+
+  - type: io.kestra.plugin.jdbc.snowflake.Upload
+    values:
+      url: jdbc:snowflake://hzbjgxb-sn54742.snowflakecomputing.com?warehouse=COMPUTE_WH
+      username: demo
+      password: MDS2023_password

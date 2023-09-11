@@ -1,0 +1,72 @@
+id: load_services_snowflake
+namespace: mds_shiny_rocks.product
+description: |
+  When data are generated upstream, this flow ingest the `orders` data into Google Cloud Storage and BigQuery.
+
+labels:
+  - key: tag
+    value: load
+
+inputs:
+  - name: services_data
+    type: URI
+
+  - name: run_date
+    type: DATE
+
+tasks:
+
+  - id: create_table
+    type: io.kestra.plugin.jdbc.snowflake.Query
+    sql: |
+      CREATE TABLE IF NOT EXISTS SHINY_ROCKS.PUBLIC.SERVICES (
+        service_id STRING ,
+        user_id STRING ,
+        product_id INTEGER ,
+        duration INTEGER ,
+        run_date STRING
+        );
+
+  - id: extract_internal_stage
+    type: io.kestra.plugin.jdbc.snowflake.Upload
+    from: "{{ inputs.services_data }}"
+    fileName: services.csv
+    prefix: "{{ inputs.run_date }}"
+    stageName: "@shiny_rocks.public.%services"
+    compress: true
+
+  - id: load_table
+    type: io.kestra.plugin.jdbc.snowflake.Query
+    sql: |
+      COPY INTO SHINY_ROCKS.PUBLIC.SERVICES
+      FROM @shiny_rocks.public.%services
+      FILE_FORMAT = (type = csv field_optionally_enclosed_by='"' skip_header = 1)
+      PATTERN = '.*services.csv.gz';
+
+triggers:
+
+  - id: get_data
+    type: io.kestra.core.models.triggers.types.Flow
+    inputs:
+      services_data: "{{ outputs.file_outputs.uris['services.csv'] }}"
+      run_date: "{{ outputs.run_date.value }}"
+    conditions:
+      - type: io.kestra.core.models.conditions.types.ExecutionFlowCondition
+        namespace: mds_shiny_rocks.product
+        flowId: produce_data
+      - type: io.kestra.core.models.conditions.types.ExecutionStatusCondition
+        in:
+          - SUCCESS
+
+taskDefaults:
+  - type: io.kestra.plugin.jdbc.snowflake.Query
+    values:
+      url: jdbc:snowflake://hzbjgxb-sn54742.snowflakecomputing.com?warehouse=COMPUTE_WH
+      username: demo
+      password: MDS2023_password
+
+  - type: io.kestra.plugin.jdbc.snowflake.Upload
+    values:
+      url: jdbc:snowflake://hzbjgxb-sn54742.snowflakecomputing.com?warehouse=COMPUTE_WH
+      username: demo
+      password: MDS2023_password

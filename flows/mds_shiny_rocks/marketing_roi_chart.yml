@@ -1,0 +1,87 @@
+id: marketing_roi_chart
+namespace: mds_shiny_rocks.marketing
+description: |
+  After dbt transformation, we use marketing data joined to orders to create a plot of marketing ROI.
+  The flow first query data from BigQuery and then run a Python script to read data and create a chart out of it.
+  Then it sends this chart by email to the marketing team.
+
+tasks:
+
+  - id: get_data
+    type: io.kestra.plugin.jdbc.snowflake.Query
+    url: jdbc:snowflake://hzbjgxb-sn54742.snowflakecomputing.com?warehouse=COMPUTE_WH
+    username: demo
+    password: MDS2023_password
+    store: true
+    sql: |
+      SELECT DISTINCT
+        platform,
+        marketing_cost,
+        sales_amount,
+        marketing_roi
+      FROM shiny_rocks.public.mart_marketing_vs_sales
+      WHERE date = DATEADD(day, -1, TO_DATE('{{ trigger.date ?? now() | date(format="YYYY-MM-dd") }}'))
+
+  
+  - id: to_csv
+    type: io.kestra.plugin.serdes.csv.CsvWriter
+    from: "{{ outputs.get_data.uri }}"
+
+
+  - id: working_dir
+    type: io.kestra.core.tasks.flows.WorkingDirectory
+    tasks:
+
+      - id: files
+        type: io.kestra.core.tasks.storages.LocalFiles
+        inputs:
+          data.csv : "{{ outputs.to_csv.uri }}"
+
+      - id: python
+        type: io.kestra.plugin.scripts.python.Script
+        warningOnStdErr: false
+        docker:
+          image: ghcr.io/kestra-io/pydata
+        beforeCommands:
+          - pip install plotnine
+        script: |
+          import pandas as pd
+          from plotnine import ggplot, geom_col, aes, ggsave
+
+          data = pd.read_csv("data.csv")
+          plot = (
+            ggplot(data) + 
+            geom_col(aes(x="PLATFORM", fill="PLATFORM", y="MARKETING_COST"))
+          )
+          ggsave(plot, "plot.png")
+
+      - id: output
+        type: io.kestra.core.tasks.storages.LocalFiles
+        outputs:
+          - plot.png
+
+  - id: send_email
+    disabled: true
+    type: io.kestra.plugin.notifications.mail.MailSend
+    attachments:
+      - name: plot.png
+        uri: '{{ outputs.output["plot.png"] }}'
+    subject: "Daily marketing ROI"
+    to: "marketing@shinyrocks.com"
+    htmlTextContent: |
+      Here is the last marketing ROI data!
+
+
+triggers:
+
+  - id: get_data
+    type: io.kestra.core.models.triggers.types.Flow
+    conditions:
+      - type: io.kestra.core.models.conditions.types.ExecutionFlowCondition
+        namespace: mds_shiny_rocks.marketing
+        flowId: dbt_run
+      - type: io.kestra.core.models.conditions.types.ExecutionStatusCondition
+        in:
+          - SUCCESS
+          - WARNING
+

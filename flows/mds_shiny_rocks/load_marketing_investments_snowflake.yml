@@ -1,0 +1,74 @@
+id: load_marketing_investments_snowflake
+namespace: mds_shiny_rocks.marketing
+description: |
+  The marketing teams manage their investments into a Google Spreadsheet, hence we load those data into BigQuery for further processing and join with other data.
+
+labels:
+  - key: tag
+    value: load
+
+variables:
+  spreadsheet_id: 1C0UWuMuiEIxkOKzSQhbhFn6AILzmXX59NUbtI4s3wpU
+
+tasks:
+    
+  - id: read_gsheet
+    type: io.kestra.plugin.googleworkspace.sheets.Read
+    description: Read data from Google Spreadsheet
+    serviceAccount: "{{ secret('gcp_creds') }}"
+    spreadsheetId: "{{ vars.spreadsheet_id }}"
+    store: true
+    valueRender: FORMATTED_VALUE
+  
+  - id: write_csv
+    type: io.kestra.plugin.serdes.csv.CsvWriter
+    description: Write CSV into Kestra internal storage
+    from: "{{ outputs.read_gsheet.uris.marketing }}"
+  
+  - id: createDatabase
+    type: io.kestra.plugin.jdbc.snowflake.Query
+    sql: CREATE DATABASE IF NOT EXISTS shiny_rocks;
+
+  - id: createTable
+    type: io.kestra.plugin.jdbc.snowflake.Query
+    sql: |
+      CREATE TABLE IF NOT EXISTS SHINY_ROCKS.PUBLIC.MARKETING_INVESTMENTS (
+        date STRING ,
+        platform STRING ,
+        amount FLOAT
+        );
+
+  - id: loadToInternalStage
+    type: io.kestra.plugin.jdbc.snowflake.Upload
+    from: "{{ outputs.write_csv.uri }}"
+    fileName: marketing_investments.csv
+    prefix: raw
+    stageName: "@shiny_rocks.public.%marketing_investments"
+    compress: true
+
+  - id: loadFromStageToTable
+    type: io.kestra.plugin.jdbc.snowflake.Query
+    sql: |
+      COPY INTO SHINY_ROCKS.PUBLIC.MARKETING_INVESTMENTS
+      FROM @shiny_rocks.public.%marketing_investments
+      FILE_FORMAT = (type = csv field_optionally_enclosed_by='"' skip_header = 1)
+      PATTERN = '.*marketing_investments.csv.gz';
+
+triggers:
+  - id: schedule
+    type: io.kestra.core.models.triggers.types.Schedule
+    cron: "0 10 * * *"
+
+taskDefaults:
+  - type: io.kestra.plugin.jdbc.snowflake.Query
+    values:
+      url: jdbc:snowflake://hzbjgxb-sn54742.snowflakecomputing.com?warehouse=COMPUTE_WH
+      username: demo
+      password: MDS2023_password
+
+  - type: io.kestra.plugin.jdbc.snowflake.Upload
+    values:
+      url: jdbc:snowflake://hzbjgxb-sn54742.snowflakecomputing.com?warehouse=COMPUTE_WH
+      username: demo
+      password: MDS2023_password
+
