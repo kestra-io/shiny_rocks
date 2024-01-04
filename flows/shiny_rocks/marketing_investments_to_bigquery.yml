@@ -38,6 +38,6 @@ tasks:
     from: "{{ outputs.write_csv.uri }}"
 
 triggers:
-  - id: schedule4
+  - id: schedule
     type: io.kestra.core.models.triggers.types.Schedule
     cron: "0 10 * * *"

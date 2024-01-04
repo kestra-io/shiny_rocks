@@ -21,7 +21,7 @@ services:
       retries: 10
 
   kestra:
-    image: kestra/kestra:develop-full
+    image: kestra/kestra:latest-full
     entrypoint: /bin/bash
     user: "root"
     env_file:

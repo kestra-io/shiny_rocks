@@ -12,7 +12,7 @@ tasks:
     tasks:
       - id: cloneRepository
         type: io.kestra.plugin.git.Clone
-        url: https://github.com/Ben8t/shiny_rocks
+        url: https://github.com/kestra-io/shiny_rocks.git
         branch: main
 
       - id: profile
@@ -33,7 +33,7 @@ tasks:
                   threads: 8
                   timeout_seconds: 300
               target: dev
-          service_account.json: "{{ secret('gcp_creds') }}"
+          service_account.json: "{{ secret('GCP_CREDS') }}"
 
 
       - id: dbt

@@ -14,7 +14,7 @@ tasks:
 
       - id: clone
         type: io.kestra.plugin.git.Clone
-        url: https://github.com/Ben8t/shiny_rocks
+        url: https://github.com/kestra-io/shiny_rocks.git
 
       - id: python
         type: io.kestra.plugin.scripts.python.Commands
@@ -40,5 +40,5 @@ triggers:
     type: io.kestra.core.models.triggers.types.Schedule
     cron: "0 10 * * *"
     backfill:
-      start: 2023-07-10T10:00:00Z
+      start: 2024-01-01T10:00:00Z
 
