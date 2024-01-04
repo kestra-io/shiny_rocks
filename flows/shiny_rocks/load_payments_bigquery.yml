@@ -39,7 +39,7 @@ triggers:
   - id: get_data
     type: io.kestra.core.models.triggers.types.Flow
     inputs:
-      payments_data: "{{ outputs.file_outputs.uris['payments.csv'] }}"
+      payments_data: "{{ outputs.python.outputFiles['payments.csv'] }}"
       payment_date: "{{ outputs.run_date.value }}"
     conditions:
       - type: io.kestra.core.models.conditions.types.ExecutionFlowCondition
