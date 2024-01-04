@@ -13,60 +13,33 @@ tasks:
     type: io.kestra.plugin.gcp.bigquery.Query
     serviceAccount: '{{ secret("gcp_creds") }}'
     projectId: kestra-dev
-    sql: |
-      SELECT
-        platform,
-        marketing_cost,
-        sales_amount,
-        marketing_roi
-      FROM shiny_rocks.mart_marketing_vs_sales
-      WHERE date = DATE_ADD("{{ trigger.date ?? now() | date(format='YYYY-MM-dd') }}", INTERVAL -3 DAY)
+    sql: "{{ read('scripts/marketing/query/get_data.sql') }}"
     store: true
-
   
   - id: to_csv
     type: io.kestra.plugin.serdes.csv.CsvWriter
     from: "{{ outputs.get_data.uri }}"
 
-
-  - id: working_dir
-    type: io.kestra.core.tasks.flows.WorkingDirectory
-    tasks:
-
-      - id: files
-        type: io.kestra.core.tasks.storages.LocalFiles
-        inputs:
-          data.csv : "{{ outputs.to_csv.uri }}"
-
-      - id: python
-        type: io.kestra.plugin.scripts.python.Script
-        warningOnStdErr: false
-        docker:
-          image: ghcr.io/kestra-io/pydata
-        beforeCommands:
-          - pip install plotnine
-        script: |
-          import pandas as pd
-          from plotnine import ggplot, geom_col, aes, ggsave
-
-          data = pd.read_csv("data.csv")
-          plot = (
-            ggplot(data) + 
-            geom_col(aes(x="platform", fill="platform", y="marketing_cost"))
-          )
-          ggsave(plot, "plot.png")
-
-      - id: output
-        type: io.kestra.core.tasks.storages.LocalFiles
-        outputs:
-          - plot.png
+  - id: python
+    type: io.kestra.plugin.scripts.python.Script
+    warningOnStdErr: false
+    docker:
+      image: ghcr.io/kestra-io/pydata
+    beforeCommands:
+      - pip install plotnine
+    script: "{{ read('scripts/marketing/src/plot.py') }}"
+    inputFiles:
+      data.csv: "{{ outputs.to_csv.uri }}"
+    outputFiles:
+      - plot.png
+    
 
   - id: send_email
     disabled: true
     type: io.kestra.plugin.notifications.mail.MailSend
     attachments:
       - name: plot.png
-        uri: '{{ outputs.output["plot.png"] }}'
+        uri: '{{ outputs.python.outputFiles["plot.png"] }}'
     subject: "Daily marketing ROI"
     to: "marketing@shinyrocks.com"
     htmlTextContent: |

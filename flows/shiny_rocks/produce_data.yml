@@ -15,9 +15,9 @@ tasks:
           enabled: true
         warningOnStdErr: false
         beforeCommands:
-          - pip install -r scripts/requirements.txt
+          - pip install -r scripts/produce/requirements.txt
         commands:
-          - python scripts/produce_data.py --date {{ schedule.date ?? now() | date("yyyy-MM-dd")}}
+          - python scripts/produce/produce_data.py --date {{ schedule.date ?? now() | date("yyyy-MM-dd")}}
         outputFiles:
           - '*.csv'
 
