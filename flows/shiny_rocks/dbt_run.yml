@@ -15,9 +15,11 @@ tasks:
         url: https://github.com/kestra-io/shiny_rocks.git
         branch: main
 
-      - id: profile
-        type: io.kestra.core.tasks.storages.LocalFiles
-        inputs:          
+      - id: dbt
+        type: io.kestra.plugin.dbt.cli.DbtCLI
+        docker:
+          image: ghcr.io/kestra-io/dbt-bigquery:latest
+        inputFiles:
           profiles.yml: |
             shiny_rocks_dbt:
               outputs:
@@ -34,12 +36,6 @@ tasks:
                   timeout_seconds: 300
               target: dev
           service_account.json: "{{ secret('GCP_CREDS') }}"
-
-
-      - id: dbt
-        type: io.kestra.plugin.scripts.shell.Commands
-        docker:
-          image: ghcr.io/kestra-io/dbt-bigquery:latest
         commands:
           - dbt run --profiles-dir=. --project-dir=shiny_rocks_dbt
 
