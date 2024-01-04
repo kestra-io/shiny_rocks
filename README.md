@@ -2,6 +2,8 @@
 
 **_✨ Shiny Rocks_** is a fictional company creating smartphones (_"those shiny rocks in our pockets"_). This project aims to provide a full working example of Kestra as you could have in a company.
 
+![schema](misc/datastack_schema.png)
+
 
 ## What is this repo ?
 
@@ -29,7 +31,7 @@ Those datasets showcase Shiny Rocks main product - smartphone. Three datasets ar
 
 - `marketing_investments`: external source coming from a Google Spreadsheet. Shiny Rocks marketing teams don't like databases and are used to manage their marketing investments into spreadsheets.
 
-![schema](misc/datastack_schema.png)
+
 
 ## What is this repo not?
 
