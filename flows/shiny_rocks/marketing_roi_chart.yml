@@ -11,7 +11,7 @@ labels:
 tasks:
   - id: get_data
     type: io.kestra.plugin.gcp.bigquery.Query
-    serviceAccount: '{{ secret("gcp_creds") }}'
+    serviceAccount: '{{ secret("GCP_CREDS") }}'
     projectId: kestra-dev
     sql: "{{ read('scripts/marketing/query/get_data.sql') }}"
     store: true

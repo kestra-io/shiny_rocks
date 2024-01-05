@@ -14,7 +14,7 @@ tasks:
   - id: read_gsheet
     type: io.kestra.plugin.googleworkspace.sheets.Read
     description: Read data from Google Spreadsheet
-    serviceAccount: "{{ secret('gcp_creds') }}"
+    serviceAccount: "{{ secret('GCP_CREDS') }}"
     spreadsheetId: "{{ vars.spreadsheet_id }}"
     store: true
     valueRender: FORMATTED_VALUE
@@ -27,7 +27,7 @@ tasks:
   - id: load_biqquery
     type: io.kestra.plugin.gcp.bigquery.Load
     description: Load data into BigQuery
-    serviceAccount: "{{ secret('gcp_creds') }}"
+    serviceAccount: "{{ secret('GCP_CREDS') }}"
     autodetect: true
     writeDisposition: WRITE_TRUNCATE
     csvOptions:

@@ -17,7 +17,7 @@ tasks:
 
   - id: extract
     type: io.kestra.plugin.gcp.gcs.Upload
-    serviceAccount: '{{ secret("gcp_creds") }}'
+    serviceAccount: '{{ secret("GCP_CREDS") }}'
     from: "{{ inputs.orders_data }}"
     to: gs://shiny_rocks/app_log/orders/{{ inputs.order_date }}/orders.csv
 
@@ -27,7 +27,7 @@ tasks:
       - "{{ outputs.extract.uri }}"
     projectId: "kestra-dev"
     destinationTable: "shiny_rocks.orders"
-    serviceAccount: '{{ secret("gcp_creds") }}'
+    serviceAccount: '{{ secret("GCP_CREDS") }}'
     format: CSV
     autodetect: true
     csvOptions:
