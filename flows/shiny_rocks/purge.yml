@@ -1,0 +1,17 @@
+id: purge
+namespace: shiny_rocks
+
+
+tasks:
+
+  - id: purge
+    type: io.kestra.core.tasks.storages.Purge
+    endDate: "{{ now() | dateAdd(-1, 'MONTHS') }}"
+    namespace: shiny_rocks
+
+
+triggers:
+  - id: schedule_produce_data
+    type: io.kestra.core.models.triggers.types.Schedule
+    cron: "0 10 * * *"
+
