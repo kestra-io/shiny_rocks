@@ -14,7 +14,7 @@ tasks:
     type: io.kestra.plugin.gcp.bigquery.Query
     serviceAccount: '{{ secret("GCP_CREDS") }}'
     projectId: kestra-dev
-    sql: "{{ read('scripts/sales/query/get_data.sql') }}"
+    sql: "{{ render(read('scripts/sales/query/get_data.sql')) }}"
     store: true 
   
   - id: write_csv
@@ -62,7 +62,7 @@ tasks:
                   data.csv: '{{ outputs.write_csv.uri }}'
                 beforeCommands: 
                   - pip install prophet
-                script: "{{ read('scripts/sales/src/forecast.py') }}"
+                script: "{{ render(read('scripts/sales/src/forecast.py')) }}"
                 
 
               - id: rscript
