@@ -27,5 +27,5 @@ resource "kestra_namespace_file" "scripts" {
   namespace = "shiny_rocks"
   filename = "/${each.value}"
   content = file(each.value)
-  depends_on = [kestra_namespace.shiny_rocks]
+  depends_on = [kestra_namespace.shiny_rocks, kestra_flow.flows]
 }
