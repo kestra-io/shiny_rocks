@@ -12,7 +12,6 @@ tasks:
   
   - id: query_data
     type: io.kestra.plugin.gcp.bigquery.Query
-    serviceAccount: '{{ secret("GCP_CREDS") }}'
     projectId: kestra-dev
     sql: "{{ render(read('scripts/sales/query/get_data.sql')) }}"
     store: true 

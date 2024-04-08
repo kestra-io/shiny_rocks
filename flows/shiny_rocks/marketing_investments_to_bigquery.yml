@@ -27,7 +27,6 @@ tasks:
   - id: load_biqquery
     type: io.kestra.plugin.gcp.bigquery.Load
     description: Load data into BigQuery
-    serviceAccount: "{{ secret('GCP_CREDS') }}"
     autodetect: true
     writeDisposition: WRITE_TRUNCATE
     csvOptions:
