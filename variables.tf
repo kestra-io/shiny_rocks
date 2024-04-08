@@ -1,10 +1,4 @@
-
-variable "kestra_user" {
-  type      = string
-  sensitive = true
-}
-
-variable "kestra_password" {
+variable "kestra_api_token" {
   type      = string
   sensitive = true
 }

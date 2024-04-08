@@ -2,15 +2,14 @@ terraform {
   required_providers {
     kestra = {
       source  = "kestra-io/kestra" # namespace of Kestra provider
-      version = "~> 0.13"         # version of Kestra Terraform provider, not the version of Kestra
+      version = "~> 0.15"         # version of Kestra Terraform provider, not the version of Kestra
     }
   }
 }
 
 provider "kestra" {
   url       = var.kestra_host
-  username  = var.kestra_user
-  password  = var.kestra_password
+  api_token = var.kestra_api_token
   tenant_id = var.kestra_tenant_id
 }
 
@@ -19,7 +18,6 @@ resource "kestra_flow" "flows" {
   flow_id   = yamldecode(templatefile(each.value, {}))["id"]
   namespace = yamldecode(templatefile(each.value, {}))["namespace"]
   content   = templatefile(each.value, {})
-  keep_original_source = true
 }
 
 resource "kestra_namespace_file" "scripts" {
