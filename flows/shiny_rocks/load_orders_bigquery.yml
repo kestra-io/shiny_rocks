@@ -7,10 +7,10 @@ labels:
   tag: load
 
 inputs:
-  - name: orders_data
+  - id: orders_data
     type: URI
 
-  - name: order_date
+  - id: order_date
     type: DATE
 
 tasks:

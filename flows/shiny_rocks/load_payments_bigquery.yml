@@ -7,10 +7,10 @@ labels:
   tag: load
 
 inputs:
-  - name: payments_data
+  - id: payments_data
     type: URI
 
-  - name: payment_date
+  - id: payment_date
     type: DATE
 
 tasks:

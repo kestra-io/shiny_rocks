@@ -7,10 +7,10 @@ labels:
   tag: load
 
 inputs:
-  - name: services_data
+  - id: services_data
     type: URI
 
-  - name: run_date
+  - id: run_date
     type: DATE
 
 tasks:
