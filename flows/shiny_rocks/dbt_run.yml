@@ -17,6 +17,7 @@ tasks:
 
       - id: dbt
         type: io.kestra.plugin.dbt.cli.DbtCLI
+        parseRunResults: true
         docker:
           image: ghcr.io/kestra-io/dbt-bigquery:latest
         inputFiles:
