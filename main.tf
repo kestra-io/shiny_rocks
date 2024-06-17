@@ -14,15 +14,31 @@ provider "kestra" {
 }
 
 resource "kestra_flow" "flows" {
-  for_each  = fileset(path.module, "flows/*/*.yml")
+  for_each  = fileset(path.module, "flows/**/*.yml")
   flow_id   = yamldecode(templatefile(each.value, {}))["id"]
   namespace = yamldecode(templatefile(each.value, {}))["namespace"]
   content   = templatefile(each.value, {})
 }
 
-resource "kestra_namespace_file" "scripts" {
-  for_each = fileset(path.module, "scripts/**/*")
-  namespace = "shiny_rocks"
+resource "kestra_namespace_file" "scripts_marketing" {
+  for_each = fileset(path.module, "scripts/marketing/**/*")
+  namespace = "shiny_rocks.marketing"
+  filename = "/${each.value}"
+  content = file(each.value)
+  depends_on = [kestra_namespace.shiny_rocks, kestra_flow.flows]
+}
+
+resource "kestra_namespace_file" "scripts_product" {
+  for_each = fileset(path.module, "scripts/produce/**/*")
+  namespace = "shiny_rocks.product"
+  filename = "/${each.value}"
+  content = file(each.value)
+  depends_on = [kestra_namespace.shiny_rocks, kestra_flow.flows]
+}
+
+resource "kestra_namespace_file" "scripts_sales" {
+  for_each = fileset(path.module, "scripts/sales/**/*")
+  namespace = "shiny_rocks.sales"
   filename = "/${each.value}"
   content = file(each.value)
   depends_on = [kestra_namespace.shiny_rocks, kestra_flow.flows]

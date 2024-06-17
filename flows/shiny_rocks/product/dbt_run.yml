@@ -1,5 +1,5 @@
 id: dbt_run
-namespace: shiny_rocks
+namespace: shiny_rocks.product
 description: |
   Whenever all data are loaded in BigQuery, this flow will run a dbt job to transform data.
 
@@ -8,7 +8,7 @@ labels:
 
 tasks:
   - id: workingdir
-    type: io.kestra.core.tasks.flows.WorkingDirectory
+    type: io.kestra.plugin.core.flow.WorkingDirectory
     tasks:
       - id: cloneRepository
         type: io.kestra.plugin.git.Clone
@@ -42,30 +42,30 @@ tasks:
 
 triggers:
   - id: multiple-listen-flow
-    type: io.kestra.core.models.triggers.types.Flow
+    type: io.kestra.plugin.core.trigger.Flow
     conditions:
-      - type: io.kestra.core.models.conditions.types.ExecutionStatusCondition
+      - type: io.kestra.plugin.core.condition.ExecutionStatusCondition
         in:
           - SUCCESS
       - id: multiple
-        type: io.kestra.core.models.conditions.types.MultipleCondition
+        type: io.kestra.plugin.core.condition.MultipleCondition
         window: P1D
         windowAdvance: P0D
         conditions:
           orders:
-            type: io.kestra.core.models.conditions.types.ExecutionFlowCondition
-            namespace: shiny_rocks
+            type: io.kestra.plugin.core.condition.ExecutionFlowCondition
+            namespace: shiny_rocks.product
             flowId: load_orders_bigquery
           payments:
-            type: io.kestra.core.models.conditions.types.ExecutionFlowCondition
-            namespace: shiny_rocks
+            type: io.kestra.plugin.core.condition.ExecutionFlowCondition
+            namespace: shiny_rocks.product
             flowId: load_payments_bigquery
           services:
-            type: io.kestra.core.models.conditions.types.ExecutionFlowCondition
-            namespace: shiny_rocks
+            type: io.kestra.plugin.core.condition.ExecutionFlowCondition
+            namespace: shiny_rocks.product
             flowId: load_services_bigquery
           marketing_investments:
-            type: io.kestra.core.models.conditions.types.ExecutionFlowCondition
-            namespace: shiny_rocks
+            type: io.kestra.plugin.core.condition.ExecutionFlowCondition
+            namespace: shiny_rocks.marketing
             flowId: marketing_investments_to_bigquery
           

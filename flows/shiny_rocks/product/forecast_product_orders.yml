@@ -1,5 +1,5 @@
 id: forecast_product_orders
-namespace: shiny_rocks
+namespace: shiny_rocks.sales
 description: |
   Shiny Rocks sells two main products. In this flow, we compute orders forecast in parallel for each of these two.
   We first query data of historic orders, serving as the base reference for forecast.
@@ -17,7 +17,7 @@ tasks:
     store: true 
   
   - id: write_csv
-    type: io.kestra.plugin.serdes.csv.CsvWriter
+    type: io.kestra.plugin.serdes.csv.IonToCsv
     from: '{{ outputs.query_data.uri }}'
     
   - id: get_product_id
@@ -39,17 +39,17 @@ tasks:
 
 
   - id: parallel_forecast
-    type: io.kestra.core.tasks.flows.EachParallel
+    type: io.kestra.plugin.core.flow.EachParallel
     description: For each product_id value, we run a forecast to predict the number of orders for the next 5 days.
     value: '{{ outputs.get_product_id.vars.product_id }}'
     tasks:
 
       - id: sequential
-        type: io.kestra.core.tasks.flows.Sequential
+        type: io.kestra.plugin.core.flow.Sequential
         tasks:
 
           - id: working_dir_forecast
-            type: io.kestra.core.tasks.flows.WorkingDirectory
+            type: io.kestra.plugin.core.flow.WorkingDirectory
             tasks:
               
               - id: forecast
@@ -88,11 +88,11 @@ tasks:
 triggers:
 
   - id: deps_etl
-    type: io.kestra.core.models.triggers.types.Flow
+    type: io.kestra.plugin.core.trigger.Flow
     conditions:
-      - type: io.kestra.core.models.conditions.types.ExecutionFlowCondition
-        namespace: shiny_rocks
+      - type: io.kestra.plugin.core.condition.ExecutionFlowCondition
+        namespace: shiny_rocks.product
         flowId: dbt_run
-      - type: io.kestra.core.models.conditions.types.ExecutionStatusCondition
+      - type: io.kestra.plugin.core.condition.ExecutionStatusCondition
         in:
           - SUCCESS
