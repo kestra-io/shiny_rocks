@@ -3,7 +3,7 @@ version: 2
 sources:
 
   - name: app_log
-    database: kestra-dev
+    database: kestra-sandbox
     schema: shiny_rocks
     tables:
       - name: orders
@@ -11,7 +11,7 @@ sources:
       - name: services
 
   - name: marketing
-    database: kestra-dev
+    database: kestra-sandbox
     schema: shiny_rocks
     tables:
       - name: marketing_investments
