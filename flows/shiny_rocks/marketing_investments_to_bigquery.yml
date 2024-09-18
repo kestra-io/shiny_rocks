@@ -14,30 +14,30 @@ tasks:
   - id: read_gsheet
     type: io.kestra.plugin.googleworkspace.sheets.Read
     description: Read data from Google Spreadsheet
-    serviceAccount: "{{ secret('gcp_creds') }}"
+    serviceAccount: "{{ secret('GCP_CREDS') }}"
     spreadsheetId: "{{ vars.spreadsheet_id }}"
     store: true
     valueRender: FORMATTED_VALUE
   
   - id: write_csv
-    type: io.kestra.plugin.serdes.csv.CsvWriter
+    type: io.kestra.plugin.serdes.csv.IonToCsv
     description: Write CSV into Kestra internal storage
     from: "{{ outputs.read_gsheet.uris.marketing }}"
   
   - id: load_biqquery
     type: io.kestra.plugin.gcp.bigquery.Load
     description: Load data into BigQuery
-    serviceAccount: "{{ secret('gcp_creds') }}"
+    serviceAccount: "{{ secret('GCP_CREDS') }}"
     autodetect: true
     writeDisposition: WRITE_TRUNCATE
     csvOptions:
       fieldDelimiter: ","
-    projectId: kestra-dev
+    projectId: "kestra-sandbox"
     destinationTable: '{{ vars.dataset_table }}'
     format: CSV
     from: "{{ outputs.write_csv.uri }}"
 
 triggers:
   - id: schedule
-    type: io.kestra.core.models.triggers.types.Schedule
+    type: io.kestra.plugin.core.trigger.Schedule
     cron: "0 10 * * *"

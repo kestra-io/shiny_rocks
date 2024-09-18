@@ -8,7 +8,7 @@ labels:
 
 tasks:
   - id: workingdir
-    type: io.kestra.core.tasks.flows.WorkingDirectory
+    type: io.kestra.plugin.core.flow.WorkingDirectory
     tasks:
       - id: cloneRepository
         type: io.kestra.plugin.git.Clone
@@ -17,8 +17,7 @@ tasks:
 
       - id: dbt
         type: io.kestra.plugin.dbt.cli.DbtCLI
-        docker:
-          image: ghcr.io/kestra-io/dbt-bigquery:latest
+        containerImage: ghcr.io/kestra-io/dbt-bigquery:latest
         inputFiles:
           profiles.yml: |
             shiny_rocks_dbt:
@@ -31,7 +30,7 @@ tasks:
                   location: EU
                   method: service-account
                   priority: interactive
-                  project: kestra-dev
+                  project: kestra-sandbox
                   threads: 8
                   timeout_seconds: 300
               target: dev
@@ -41,30 +40,30 @@ tasks:
 
 triggers:
   - id: multiple-listen-flow
-    type: io.kestra.core.models.triggers.types.Flow
+    type: io.kestra.plugin.core.trigger.Flow
     conditions:
-      - type: io.kestra.core.models.conditions.types.ExecutionStatusCondition
+      - type: io.kestra.plugin.core.condition.ExecutionStatusCondition
         in:
           - SUCCESS
       - id: multiple
-        type: io.kestra.core.models.conditions.types.MultipleCondition
+        type: io.kestra.plugin.core.condition.MultipleCondition
         window: P1D
         windowAdvance: P0D
         conditions:
           orders:
-            type: io.kestra.core.models.conditions.types.ExecutionFlowCondition
+            type: io.kestra.plugin.core.condition.ExecutionFlowCondition
             namespace: shiny_rocks
             flowId: load_orders_bigquery
           payments:
-            type: io.kestra.core.models.conditions.types.ExecutionFlowCondition
+            type: io.kestra.plugin.core.condition.ExecutionFlowCondition
             namespace: shiny_rocks
             flowId: load_payments_bigquery
           services:
-            type: io.kestra.core.models.conditions.types.ExecutionFlowCondition
+            type: io.kestra.plugin.core.condition.ExecutionFlowCondition
             namespace: shiny_rocks
             flowId: load_services_bigquery
           marketing_investments:
-            type: io.kestra.core.models.conditions.types.ExecutionFlowCondition
+            type: io.kestra.plugin.core.condition.ExecutionFlowCondition
             namespace: shiny_rocks
             flowId: marketing_investments_to_bigquery
           

@@ -22,14 +22,11 @@ tasks:
           - '*.csv'
 
       - id: run_date
-        type: io.kestra.core.tasks.debugs.Return
+        type: io.kestra.plugin.core.debug.Return
         format: '{{ schedule.date ?? now() | date("yyyy-MM-dd")}}'
 
 
 triggers:
   - id: schedule_produce_data
-    type: io.kestra.core.models.triggers.types.Schedule
+    type: io.kestra.plugin.core.trigger.Schedule
     cron: "0 10 * * *"
-    backfill:
-      start: 2024-01-01T10:00:00Z
-

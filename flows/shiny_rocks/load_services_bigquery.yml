@@ -7,27 +7,27 @@ labels:
   tag: load
 
 inputs:
-  - name: services_data
+  - id: services_data
     type: URI
 
-  - name: run_date
+  - id: run_date
     type: DATE
 
 tasks:
 
   - id: extract
     type: io.kestra.plugin.gcp.gcs.Upload
-    serviceAccount: '{{ secret("gcp_creds") }}'
+    serviceAccount: '{{ secret("GCP_CREDS") }}'
     from: "{{ inputs.services_data }}"
-    to: gs://shiny_rocks/app_log/services/{{ inputs.run_date }}/services.csv
+    to: gs://shiny_rocks_project/app_log/services/{{ inputs.run_date }}/services.csv
 
   - id: load
     type: io.kestra.plugin.gcp.bigquery.LoadFromGcs
     from: 
       - "{{ outputs.extract.uri }}"
-    projectId: "kestra-dev"
+    projectId: "kestra-sandbox"
     destinationTable: "shiny_rocks.services"
-    serviceAccount: '{{ secret("gcp_creds") }}'
+    serviceAccount: '{{ secret("GCP_CREDS") }}'
     format: CSV
     autodetect: true
     csvOptions:
@@ -37,14 +37,14 @@ tasks:
 triggers:
 
   - id: get_data
-    type: io.kestra.core.models.triggers.types.Flow
+    type: io.kestra.plugin.core.trigger.Flow
     inputs:
       services_data: "{{ outputs.python.outputFiles['services.csv'] }}"
       run_date: "{{ outputs.run_date.value }}"
     conditions:
-      - type: io.kestra.core.models.conditions.types.ExecutionFlowCondition
+      - type: io.kestra.plugin.core.condition.ExecutionFlowCondition
         namespace: shiny_rocks
         flowId: produce_data
-      - type: io.kestra.core.models.conditions.types.ExecutionStatusCondition
+      - type: io.kestra.plugin.core.condition.ExecutionStatusCondition
         in:
           - SUCCESS

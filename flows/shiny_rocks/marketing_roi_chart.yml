@@ -11,13 +11,13 @@ labels:
 tasks:
   - id: get_data
     type: io.kestra.plugin.gcp.bigquery.Query
-    serviceAccount: '{{ secret("gcp_creds") }}'
-    projectId: kestra-dev
+    serviceAccount: '{{ secret("GCP_CREDS") }}'
+    projectId: "kestra-sandbox"
     sql: "{{ read('scripts/marketing/query/get_data.sql') }}"
     store: true
   
   - id: to_csv
-    type: io.kestra.plugin.serdes.csv.CsvWriter
+    type: io.kestra.plugin.serdes.csv.IonToCsv
     from: "{{ outputs.get_data.uri }}"
 
   - id: python
@@ -49,12 +49,12 @@ tasks:
 triggers:
 
   - id: get_data
-    type: io.kestra.core.models.triggers.types.Flow
+    type: io.kestra.plugin.core.trigger.Flow
     conditions:
-      - type: io.kestra.core.models.conditions.types.ExecutionFlowCondition
+      - type: io.kestra.plugin.core.condition.ExecutionFlowCondition
         namespace: shiny_rocks
         flowId: dbt_run
-      - type: io.kestra.core.models.conditions.types.ExecutionStatusCondition
+      - type: io.kestra.plugin.core.condition.ExecutionStatusCondition
         in:
           - SUCCESS
 

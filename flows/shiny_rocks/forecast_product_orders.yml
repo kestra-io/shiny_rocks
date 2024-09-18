@@ -1,5 +1,6 @@
 id: forecast_product_orders
 namespace: shiny_rocks
+disabled: true
 description: |
   Shiny Rocks sells two main products. In this flow, we compute orders forecast in parallel for each of these two.
   We first query data of historic orders, serving as the base reference for forecast.
@@ -12,7 +13,7 @@ tasks:
   
   - id: query_data
     type: io.kestra.plugin.gcp.bigquery.Query
-    serviceAccount: '{{ secret("gcp_creds") }}'
+    serviceAccount: '{{ secret("GCP_CREDS") }}'
     projectId: kestra-dev
     sql: "{{ read('scripts/sales/query/get_data.sql') }}"
     store: true 
