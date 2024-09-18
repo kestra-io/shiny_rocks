@@ -53,9 +53,9 @@ services:
             type: postgres
           server:
             basic-auth:
-              enabled: true
-              username: shiny_rocks
-              password: ThoseShinyRocksInOurPockets
+              enabled: false
+              username: admin@kestra.io
+              password: 123Soleil!
           tasks:
             scripts:
               docker:
