@@ -1,5 +1,5 @@
 id: dbt_run
-namespace: shiny_rocks
+namespace: shiny_rocks.product
 description: |
   Whenever all data are loaded in BigQuery, this flow will run a dbt job to transform data.
 
@@ -52,18 +52,18 @@ triggers:
         conditions:
           orders:
             type: io.kestra.plugin.core.condition.ExecutionFlowCondition
-            namespace: shiny_rocks
+            namespace: shiny_rocks.product
             flowId: load_orders_bigquery
           payments:
             type: io.kestra.plugin.core.condition.ExecutionFlowCondition
-            namespace: shiny_rocks
+            namespace: shiny_rocks.product
             flowId: load_payments_bigquery
           services:
             type: io.kestra.plugin.core.condition.ExecutionFlowCondition
-            namespace: shiny_rocks
+            namespace: shiny_rocks.product
             flowId: load_services_bigquery
           marketing_investments:
             type: io.kestra.plugin.core.condition.ExecutionFlowCondition
-            namespace: shiny_rocks
+            namespace: shiny_rocks.marketing
             flowId: marketing_investments_to_bigquery
           

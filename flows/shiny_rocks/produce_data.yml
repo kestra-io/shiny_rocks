@@ -1,5 +1,5 @@
 id: produce_data
-namespace: shiny_rocks
+namespace: shiny_rocks.product
 description: |
   This flow generate Shiny Rocks fictional data. Three datasets are created: `orders`, `payments` and `services`.
   Like in reality, those data change everyday.

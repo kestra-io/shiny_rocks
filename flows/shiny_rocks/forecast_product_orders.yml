@@ -1,5 +1,5 @@
 id: forecast_product_orders
-namespace: shiny_rocks
+namespace: shiny_rocks.sales
 disabled: true
 description: |
   Shiny Rocks sells two main products. In this flow, we compute orders forecast in parallel for each of these two.
@@ -93,7 +93,7 @@ triggers:
     type: io.kestra.core.models.triggers.types.Flow
     conditions:
       - type: io.kestra.core.models.conditions.types.ExecutionFlowCondition
-        namespace: shiny_rocks
+        namespace: shiny_rocks.product
         flowId: dbt_run
       - type: io.kestra.core.models.conditions.types.ExecutionStatusCondition
         in:

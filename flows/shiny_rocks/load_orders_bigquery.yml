@@ -1,5 +1,5 @@
 id: load_orders_bigquery
-namespace: shiny_rocks
+namespace: shiny_rocks.product
 description: |
   When data are generated upstream, this flow ingest the `orders` data into Google Cloud Storage and BigQuery.
 
@@ -43,7 +43,7 @@ triggers:
       order_date: "{{ outputs.run_date.value }}"
     conditions:
       - type: io.kestra.plugin.core.condition.ExecutionFlowCondition
-        namespace: shiny_rocks
+        namespace: shiny_rocks.product
         flowId: produce_data
       - type: io.kestra.plugin.core.condition.ExecutionStatusCondition
         in:
