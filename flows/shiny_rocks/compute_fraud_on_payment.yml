@@ -1,0 +1,39 @@
+id: compute_fraud_on_payment
+namespace: shiny_rocks.fraud
+tasks:
+
+  - id: if
+    type: io.kestra.plugin.core.flow.If
+    condition: "{{ trigger.data is not null }}"
+    then: 
+      - id: fraud_probability
+        type: io.kestra.plugin.core.flow.Subflow
+        namespace: shiny_rocks.fraud
+        flowId: payment_fraud_detection
+        inputs:
+          cvv: "{{ trigger.data.cvv ?? 'NULL' }}"
+          payment_type: "{{ trigger.data.card_type ?? 'NULL' }}"
+
+      - id: update
+        type: io.kestra.plugin.mongodb.Update
+        connection: 
+          uri: '{{secret("MONGO_CONNECTION_STRING") }}'
+        database: my_database
+        collection: my_collection
+        filter:
+          _id:
+            $oid: '{{ trigger.data._id["$oid"] }}'
+        document: {"$set": {"fraud": 0.83}}
+
+    else:
+      - id: log
+        type: io.kestra.plugin.core.log.Log
+        message: "Can't run fraud computation"
+
+
+triggers:
+  - id: payment_in_mongo
+    type: io.kestra.plugin.debezium.mongodb.RealtimeTrigger
+    hostname: '{{secret("MONGO_HOST") }}'
+    port: "27017"
+    connectionString: '{{secret("MONGO_CONNECTION_STRING") }}'

@@ -1,0 +1,26 @@
+id: payment_fraud_detection
+namespace: shiny_rocks.fraud
+
+labels:
+  tag: fraud
+  kind: subflow
+
+inputs:
+  - id: payment_type
+    type: SELECT
+    values:
+      - PAYPAL
+      - VISA
+
+  - id: cvv
+    type: INT
+
+tasks:
+  - id: compute_fraud
+    type: io.kestra.plugin.core.debug.Return
+    format: 0.83
+
+outputs:
+  - id: fraud_probability
+    type: FLOAT
+    value: "{{ outputs.compute_fraud.value }}"
