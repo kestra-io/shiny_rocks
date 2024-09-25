@@ -18,9 +18,23 @@ resource "kestra_flow" "flows" {
   content   = templatefile(each.value, {})
 }
 
-resource "kestra_namespace_file" "scripts" {
-  for_each = fileset(path.module, "scripts/**/*")
-  namespace = "shiny_rocks"
+resource "kestra_namespace_file" "scripts_product" {
+  for_each = fileset(path.module, "scripts/produce/**/*")
+  namespace = "shiny_rocks.product"
+  filename = "/${each.value}"
+  content = file(each.value)
+}
+
+resource "kestra_namespace_file" "scripts_marketing" {
+  for_each = fileset(path.module, "scripts/marketing/**/*")
+  namespace = "shiny_rocks.marketing"
+  filename = "/${each.value}"
+  content = file(each.value)
+}
+
+resource "kestra_namespace_file" "scripts_sales" {
+  for_each = fileset(path.module, "scripts/sales/**/*")
+  namespace = "shiny_rocks.sales"
   filename = "/${each.value}"
   content = file(each.value)
 }
