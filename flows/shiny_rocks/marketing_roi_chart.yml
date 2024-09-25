@@ -13,7 +13,7 @@ tasks:
     type: io.kestra.plugin.gcp.bigquery.Query
     serviceAccount: '{{ secret("GCP_CREDS") }}'
     projectId: "kestra-sandbox"
-    sql: "{{ read('scripts/marketing/query/get_data.sql') }}"
+    sql: "{{ render(read('scripts/marketing/query/get_data.sql')) }}"
     store: true
   
   - id: to_csv

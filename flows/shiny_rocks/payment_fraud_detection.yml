@@ -16,6 +16,14 @@ inputs:
     type: INT
 
 tasks:
+
+  - id: wait
+    type: io.kestra.plugin.scripts.shell.Commands
+    taskRunner:
+      type: io.kestra.plugin.core.runner.Process
+    commands:
+      - sleep 5
+      
   - id: compute_fraud
     type: io.kestra.plugin.core.debug.Return
     format: 0.83
